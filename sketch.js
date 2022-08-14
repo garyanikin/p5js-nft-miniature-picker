@@ -150,7 +150,10 @@ function createCursor() {
     v = pos.v;
   };
   const getSize = () => size;
-  const scale = (_scale) => (size = _scale);
+  const scale = (_scale) => {
+    size = _scale;
+    move(inLimits({ u, v }));
+  };
   const getPos = () => ({
     u,
     v,
