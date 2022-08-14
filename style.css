@@ -11,6 +11,7 @@ body {
 
 body {
   background: url("./bg.jpg") no-repeat center center, rgba(0, 0, 0, 0.5);
+  background-size: contain;
   background-blend-mode: multiply;
 }
 

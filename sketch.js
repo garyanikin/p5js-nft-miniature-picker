@@ -1,3 +1,5 @@
+const CANVAS_SIZE = Math.min(window.innerWidth, 400);
+
 let cursor;
 let touchMove,
   touchZoom = null;
@@ -9,7 +11,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(CANVAS_SIZE, CANVAS_SIZE);
 
   cursor = createCursor();
 }
@@ -33,6 +35,7 @@ function draw() {
   polygon(x, y, polygonSize, 7, 20, 5, PI / 2.8);
   drawingContext.clip();
   // draw photo
+  photo.resize(width, 0);
   image(photo, 0, 0);
   drawingContext.restore();
 
@@ -116,8 +119,11 @@ function moveCursor({ mover: initPos, cursor: initCursor }) {
 function createCursor() {
   let u = 0.5,
     v = 0.5,
-    size = 0.5;
+    size = 1;
+  const offLimits = () => false;
   const move = (pos) => {
+    if (offLimits(pos)) return;
+
     u = pos.u;
     v = pos.v;
   };
