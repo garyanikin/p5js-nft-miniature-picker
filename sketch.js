@@ -50,7 +50,7 @@ function touchStarted() {
   if (touches.length > 2) return;
 
   if (isCursorTouched()) {
-    touchMove = { cursor: cursor.getPos(), mover: getMover() };
+    setTouchMove();
   }
 
   const zoomer = getZoomer();
@@ -64,6 +64,10 @@ function touchStarted() {
 
   // prevent default
   return false;
+}
+
+function setTouchMove() {
+  touchMove = { cursor: cursor.getPos(), mover: getMover() };
 }
 
 function touchEnded() {
@@ -112,18 +116,36 @@ function moveCursor({ mover: initPos, cursor: initCursor }) {
   if (cursor.isTouch(mover)) {
     const delta = subUv(mover, initPos);
     const newPos = addUv(initCursor, delta);
-    cursor.move(newPos);
+    cursor.move(cursor.inLimits(newPos));
+    setTouchMove();
   }
 }
 
 function createCursor() {
+  const circle = 0.45;
+  const vCorrector = 0.02;
+
   let u = 0.5,
     v = 0.5,
     size = 1;
-  const offLimits = () => false;
-  const move = (pos) => {
-    if (offLimits(pos)) return;
+  const inLimits = ({ u, v }) => {
+    const scaledCircle = circle * size;
+    const scaledCorrector = vCorrector * size;
 
+    const maxU = (u) => Math.min(u, 1 - scaledCircle);
+    const minU = (u) => Math.max(u, scaledCircle);
+    const newU = minU(maxU(u));
+
+    const maxV = (v) => Math.min(v, 1 + scaledCorrector - scaledCircle);
+    const minV = (v) => Math.max(v, scaledCircle + scaledCorrector);
+    const newV = minV(maxV(v));
+
+    return {
+      u: newU,
+      v: newV,
+    };
+  };
+  const move = (pos) => {
     u = pos.u;
     v = pos.v;
   };
@@ -145,6 +167,7 @@ function createCursor() {
     getSize,
     move,
     scale,
+    inLimits,
   };
 }
 
